@@ -211,18 +211,15 @@ fil_validate_skip(void)
 /*===================*/
 {
 	/** The fil_validate() call skip counter. */
-	static int fil_validate_count = FIL_VALIDATE_SKIP;
+	static std::atomic<int> fil_validate_count(FIL_VALIDATE_SKIP);
 
 	/* We want to reduce the call frequency of the costly fil_validate()
 	check in debug builds. */
-	int count = my_atomic_add32_explicit(&fil_validate_count, -1,
-					     MY_MEMORY_ORDER_RELAXED);
-	if (count > 0) {
+	if (fil_validate_count.fetch_sub(1, std::memory_order_relaxed) > 0) {
 		return(true);
 	}
 
-	my_atomic_store32_explicit(&fil_validate_count, FIL_VALIDATE_SKIP,
-				   MY_MEMORY_ORDER_RELAXED);
+	fil_validate_count.store(FIL_VALIDATE_SKIP, std::memory_order_relaxed);
 	return(fil_validate());
 }
 #endif /* UNIV_DEBUG */
