@@ -933,7 +933,8 @@ JOIN::prepare(TABLE_LIST *tables_init,
             item->max_length)))
         real_order= TRUE;
 
-      if (item->with_sum_func && item->type() != Item::SUM_FUNC_ITEM)
+      if ((item->with_sum_func && item->type() != Item::SUM_FUNC_ITEM) ||
+          item->with_window_func)
         item->split_sum_func(thd, ref_ptrs, all_fields, 0);
     }
     if (!real_order)

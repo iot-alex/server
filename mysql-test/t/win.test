@@ -2092,3 +2092,14 @@ insert into t1 values (1),(2);
 SELECT DISTINCT row_number() OVER (), MAX(1) FROM t1;
 SELECT DISTINCT BIT_AND(0)  OVER (), MAX(1) FROM t1;
 drop table t1;
+
+--echo #
+--echo # MDEV-14791: Crash with order by expression containing window functions
+--echo #
+
+CREATE TABLE t1 (b1 int, b2 int, b3 int, b4 int , b5 int, b6 int);
+INSERT INTO t1 VALUES (1,0,0,1,0,1),(0,1,0,0,1,0);
+explain
+SELECT b1 from t1 order by row_number() over (ORDER BY b6) + 1;
+SELECT b1 from t1 order by row_number() over (ORDER BY b6) + 1;
+DROP TABLE t1;
